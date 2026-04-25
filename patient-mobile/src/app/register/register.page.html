@@ -1,13 +1,55 @@
 <ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>register</ion-title>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Patient Registration</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">register</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content class="ion-padding">
+
+  <ion-list>
+    <ion-item>
+      <ion-label position="stacked">Full Name *</ion-label>
+      <ion-input type="text" [(ngModel)]="patientData.name" placeholder="Enter your full name"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Date of Birth *</ion-label>
+      <ion-input type="date" [(ngModel)]="patientData.dob"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Phone Number *</ion-label>
+      <ion-input type="tel" [(ngModel)]="patientData.phone" placeholder="Enter your phone number"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Home Address *</ion-label>
+      <ion-input type="text" [(ngModel)]="patientData.address" placeholder="Enter your home address"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Email Address *</ion-label>
+      <ion-input type="email" [(ngModel)]="patientData.email" placeholder="Enter your email address"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Password *</ion-label>
+      <ion-input type="password" [(ngModel)]="patientData.password" placeholder="Enter your password"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Allergies (Optional)</ion-label>
+      <ion-input type="text" [(ngModel)]="patientData.allergies" placeholder="Let us know if you have any allergies"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">PPS Number (Optional)</ion-label>
+      <ion-input type="text" [(ngModel)]="patientData.pps" placeholder="Enter your PPS number"></ion-input>
+    </ion-item>
+  </ion-list>
+
+  <ion-button expand="block" class="ion-margin-top" (click)="registerPatient()">Create Account</ion-button>
 </ion-content>
