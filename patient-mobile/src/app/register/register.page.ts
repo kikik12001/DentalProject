@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { IonContent, IonHeader, IonTitle, IonToolbar } from '@ionic/angular/standalone';
-
+import { Router } from '@angular/router';
 import {Auth, createUserWithEmailAndPassword} from '@angular/fire/auth';
 import {Firestore, doc, setDoc} from '@angular/fire/firestore';
 
@@ -31,10 +31,19 @@ export class RegisterPage  {
 
   constructor(
     private auth: Auth,
-    private firestore: Firestore
+    private firestore: Firestore,
+    private router: Router
   ) { }
 
   async registerPatient() {
+    //check if all required fields are filled in
+    if (!this.patientData.name || !this.patientData.dob || !this.patientData.phone || !this.patientData.address || !this.patientData.email || !this.patientData.password) {
+      //if any are missing, we show this alert
+      alert('Please fill in all required fields.');
+      return;
+    }
+
+
     try {
       const userCredential = await createUserWithEmailAndPassword(
         this.auth, 
@@ -57,6 +66,8 @@ export class RegisterPage  {
          });
         
          alert('Account created successfully!');
+         // when the account is created, we navigate to the login page
+         this.router.navigate(['/login']);
 
     } catch (error:any) {
       console.error('Error registering:', error);
