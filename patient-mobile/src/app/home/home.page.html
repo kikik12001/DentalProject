@@ -1,20 +1,37 @@
 <ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>
-      Blank
-    </ion-title>
+  <ion-toolbar color="primary">
+    <ion-title>Patient Dashboard</ion-title>
+    <ion-button slot="end">
+      <ion-button (click)="logout()">
+        <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
+      </ion-button>
+    </ion-button>  
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Blank</ion-title>
-    </ion-toolbar>
-  </ion-header>
-
-  <div id="container">
-    <strong>Ready to create an app?</strong>
-    <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
+<ion-content class="ion-padding">
+  <div class="ion-text-center">
+    <h1>Welcome, {{ patientName }}!</h1>
   </div>
+
+  <ion-list-header>
+    <ion-label>Upcoming Appointment</ion-label>
+  </ion-list-header>
+
+  <ion-card *ngIf="upcomingAppointment">
+    <ion-item lines="none">
+      <ion-icon name="calendar-number-outline" slot="start"></ion-icon>
+      <ion-label>
+        <h2>{{ upcomingAppointment.date }}</h2>
+        <p><strong>Procedure:</strong> {{ upcomingAppointment.procedure }}</p>
+        <p><strong>Clinician:</strong> {{ upcomingAppointment.clinician }}</p>
+      </ion-label>
+    </ion-item>
+  </ion-card>
+
+  <ion-card *ngIf="!upcomingAppointment" class="ion-padding ion-text-center">
+    <ion-text color="medium">
+    <p>There is no upcoming appointment.</p>
+    </ion-text>
+  </ion-card>
 </ion-content>
