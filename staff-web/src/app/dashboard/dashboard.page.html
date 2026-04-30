@@ -1,0 +1,58 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Clinic Dashboard</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  
+  <div class="dashboard-header">
+    <h2>Daily Schedule</h2>
+    <div class="date-display">
+      <ion-icon name="calendar-outline"></ion-icon>
+      <!--to staff knows what day day are looking at-->
+      <span>{{ currentViewDate }}</span> 
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="isLoading">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Syncing with Cloud...</p>
+  </div>
+
+  <!-- The Calendar Grid -->
+  <div class="table-container" *ngIf="!isLoading">
+    <table class="schedule-table">
+      
+      <!-- Top Row - Clinician Names -->
+      <thead>
+        <tr>
+          <th class="time-col-header">Time</th>
+          <th *ngFor="let staff of staffList">{{ staff }}</th>
+        </tr>
+      </thead>
+      
+      <!-- Data Rows -->
+      <tbody>
+        <tr *ngFor="let time of timeSlots">
+          
+          <!-- Left Column: Time -->
+          <td class="time-cell">{{ time }}</td>
+          
+          <!-- Clinic Columns -->
+          <td *ngFor="let staff of staffList" class="grid-cell">
+            
+            <!-- If an appointment exists here, show the card -->
+            <div class="appointment-card" *ngIf="calendarGrid[time][staff]">
+              <span class="procedure-tag">{{ calendarGrid[time][staff]?.procedure }}</span>
+            </div>
+            
+          </td>
+        </tr>
+      </tbody>
+
+    </table>
+  </div>
+
+</ion-content>
