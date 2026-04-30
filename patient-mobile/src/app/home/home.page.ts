@@ -1,14 +1,18 @@
-import { Component } from '@angular/core';
-import { IonHeader, IonToolbar, IonTitle, IonContent } from '@ionic/angular/standalone';
+import { Component, OnInit } from '@angular/core';
+import { IonicModule} from '@ionic/angular';
+import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { addIcons} from 'ionicons';
+import { logOutOutline, calendarOutline } from 'ionicons/icons';
 import { Firestore, doc, getDoc, collection, query, where, getDocs, orderBy, limit, QuerySnapshot } from '@angular/fire/firestore';
-import { Auth, onAuthStateChanged } from '@angular/fire/auth';
-import { OnInit } from '@angular/core';
+import { Auth, onAuthStateChanged, signOut } from '@angular/fire/auth';
 
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
-  imports: [IonHeader, IonToolbar, IonTitle, IonContent],
+  standalone: true,
+  imports: [IonicModule, CommonModule],
 })
 
 export class HomePage implements OnInit {
@@ -16,7 +20,9 @@ export class HomePage implements OnInit {
   //creat a variable called upcomingAppointment.
   upcomingAppointment: any = null;
 
-  constructor(private auth: Auth, private firestore: Firestore) {}
+  constructor(private auth: Auth, private firestore: Firestore, private router: Router) {
+    addIcons({ 'log-out-outline': logOutOutline, 'calendar-outline': calendarOutline });
+  }
 
   ngOnInit() {
     //onAuthStateChanged checks if a user is logged in right now.
@@ -25,6 +31,9 @@ export class HomePage implements OnInit {
         //if a user is found, we run these two funcions using their unique ID (UID)
         this.loadPatientData(user.uid);
         this.loadNearestAppointment(user.uid);
+      } else {
+        //if someone tries to access /home without login, kick them back to login page.
+        this.router.navigate(['/login']);
       }
     });
   }
@@ -66,5 +75,10 @@ export class HomePage implements OnInit {
       //error message if something goes wrong with the search
       console.error("Error loading appointment:", error);
     }
-  }  
+  }
+  
+  async logout(){
+    await signOut(this.auth);
+    this.router.navigate(['/login']);
+  }
 }

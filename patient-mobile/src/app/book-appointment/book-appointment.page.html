@@ -1,0 +1,104 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Our Clinicians</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <div class="ion-text-center ion-margin-bottom">
+    <h2>Select a Clinician</h2>
+    <p>Please choose a clinician to see their available appointment slots.</p>
+  </div>
+
+  <div *ngFor="let staff of clinicians">
+    
+    <ion-card (click)="selectClinician(staff)" button="true">
+      <ion-item lines="none">
+        <ion-avatar slot="start">
+          <img [src]="staff.image" alt="Doctor Photo" />
+        </ion-avatar>
+        <ion-label>
+          <h2>{{ staff.name }}</h2>
+          <p color="medium">{{ staff.role }}</p>
+        </ion-label>
+      </ion-item>
+
+      <ion-card-content>
+        <p><strong>Available Procedures:</strong></p>
+        <ul>
+          <li *ngFor="let proc of staff.procedures">
+            {{ proc.name }} <em>({{ proc.duration }} mins)</em>
+          </li>
+        </ul>
+      </ion-card-content>
+    </ion-card>
+
+    <div *ngIf="selectedClinician?.id === staff.id" class="ion-margin-bottom ion-padding-horizontal">
+      
+      <ion-card color="light" class="ion-no-margin">
+        <ion-list-header>
+          <ion-label color="primary"> Book with {{ staff.name }} </ion-label>
+        </ion-list-header>
+
+        <ion-item color="light">
+          <ion-label position="stacked">Select a Procedure</ion-label>
+          <ion-select [(ngModel)]="selectedProcedure" placeholder="Choose a procedure">
+            <ion-select-option *ngFor="let proc of staff.procedures" [value]="proc">
+              {{ proc.name }} ({{ proc.duration }} mins)
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-item color="light">
+          <ion-label position="stacked"> Pick Date </ion-label>
+          <ion-input type="date" [(ngModel)]="selectedDate"></ion-input>
+        </ion-item>
+
+        <div *ngIf="selectedProcedure && selectedDate" class="ion-padding">
+          <ion-button expand="block" color="success" (click)="generateSlots()">
+            Find Available Slots
+          </ion-button>
+        </div>
+
+        <div *ngIf="availableSlots.length > 0 " class="ion-padding-top">
+
+          <ion-button
+            *ngFor="let time of availableSlots"
+            (click)="selectTime(time)"
+            [color]="selectedTime === time ? 'primary' : 'medium'"
+            [fill]="selectedTime === time ? 'solid' : 'outline'"
+            class="ion-margin-end ion-margin-bottom">
+            {{ time }}
+          </ion-button>>
+            
+          <div *ngIf="selectedTime" class="ion-padding-top ion-text-center">
+            <ion-card color="success">
+              <ion-card-header>
+                <ion-card-title> Booking Summary </ion-card-title>
+              </ion-card-header>
+              <ion-card-content>
+                <p><strong>Clinician:</strong> {{ selectedClinician?.name }}</p>
+                <p><strong>Procedure:</strong> {{ selectedProcedure?.name }}</p>
+                <p><strong>Date:</strong> {{ selectedDate }}</p>
+                <p><strong>Time:</strong> {{ selectedTime }}</p>
+
+                <ion-button expand="block" color="light" class="ion-margin-top">
+                  Confirm Appointment
+                </ion-button>
+              </ion-card-content>
+            </ion-card>
+          </div>
+        </div>
+
+        
+      </ion-card>
+
+    </div>
+    
+  </div> 
+
+</ion-content>
