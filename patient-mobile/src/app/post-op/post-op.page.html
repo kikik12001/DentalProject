@@ -1,0 +1,29 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>After-Care Guides</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content color="light">
+  <div class="ion-padding">
+    <h2>Post-Operative Instructions</h2>
+    <p>Select a treatment below to view your after-care instructions.</p>
+  </div>
+
+  <ion-list lines="none">
+    <ion-card *ngFor="let guide of guides" (click)="openGuide(guide.url)" button="true">
+      <ion-item>
+        <ion-icon name="document-text-outline" slot="start" color="primary"></ion-icon>
+        <ion-label>
+          <h2 style="font-weight: bold;">{{ guide.title }}</h2>
+          <p>Tap to view PDF instructions</p>
+        </ion-label>
+        <ion-icon name="chevron-forward-outline" slot="end" color="medium"></ion-icon>
+      </ion-item>
+    </ion-card>
+  </ion-list>
+</ion-content>

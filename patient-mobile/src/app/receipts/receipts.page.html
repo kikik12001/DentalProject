@@ -1,0 +1,42 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>My Receipts</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding gray-background">
+  <div class="welcome-container">
+    <p>Financial Records</p>
+    <h1>Payments</h1>
+  </div>
+
+  <div *ngIf="isLoading" class="ion-text-center ion-padding">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+  </div>
+
+  <ion-list lines="none" *ngIf="!isLoading && transactions.length > 0">
+    <ion-card *ngFor="let item of transactions" class="receipt-card">
+      <ion-item lines="none">
+        <div class="icon-box-receipt" slot="start">
+          <ion-icon name="receipt-outline" color="primary"></ion-icon>
+        </div>
+        <ion-label>
+          <h2 class="amount">€{{ item.amount }}</h2>
+          <p class="date">{{ item.date | date:'mediumDate' }}</p>
+          <p class="status">Status: {{ item.status }}</p>
+        </ion-label>
+        <ion-button fill="clear" (click)="downloadPDF(item)">
+          <ion-icon name="download-outline" slot="icon-only"></ion-icon>
+        </ion-button>
+      </ion-item>
+    </ion-card>
+  </ion-list>
+
+  <div *ngIf="!isLoading && transactions.length === 0" class="empty-state">
+    <ion-icon name="card-outline" slot="icon-only" style="font-size: 80px;"></ion-icon>
+    <p>No transactions found.</p>
+  </div>
+</ion-content>

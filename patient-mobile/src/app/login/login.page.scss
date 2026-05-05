@@ -1,0 +1,57 @@
+.login-background {
+  --background: none;
+  /* You can use the same dental image or a different one for patients */
+  background: linear-gradient(rgba(0, 85, 130, 0.7), rgba(0, 85, 130, 0.7)), 
+              url('https://i.pinimg.com/1200x/ec/41/98/ec419825a66f0c9233d54b46e5aa92aa.jpg') 
+              no-repeat center center / cover;
+}
+
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.login-card {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  
+  border-radius: 30px;
+  padding: 30px 20px;
+  width: 92%; /* Slightly wider for mobile tap targets */
+  max-width: 400px;
+  text-align: center;
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.custom-input {
+  --background: rgba(255, 255, 255, 0.95);
+  --border-radius: 15px; /* Slightly less round than staff for a distinct 'patient' feel */
+  --color: #1e2d3e;
+  margin-bottom: 12px;
+  --highlight-height: 0; /* Important: removes the default bottom line */
+  
+  ion-icon {
+    color: #005582;
+    margin-inline-end: 10px;
+  }
+}
+
+.login-btn {
+  --border-radius: 15px;
+  --background: #ffffff;
+  --color: #005582;
+  font-weight: 600;
+  height: 50px;
+  margin-top: 20px;
+}
+
+.register-link {
+  --color: #ffffff;
+  font-size: 0.9rem;
+  margin-top: 10px;
+}

@@ -7,14 +7,17 @@ import { AppComponent } from './app/app.component';
 import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 import { provideFirestore, getFirestore } from '@angular/fire/firestore';
 import { environment } from './environments/environment';
+import {getAuth, provideAuth} from '@angular/fire/auth'
 
 bootstrapApplication(AppComponent, {
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     provideIonicAngular(),
-    provideRouter(routes),
+    provideRouter(routes, withPreloading(PreloadAllModules)),
     //connect web app to the same cloud as mobile app
     provideFirebaseApp(() => initializeApp(environment.firebaseConfig)),
     provideFirestore(() => getFirestore()),
+
+    provideAuth(() => getAuth()),
   ],
 });

@@ -1,0 +1,25 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-title>Appointment Confirmed</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding ion-text-center">
+
+  <div style="margin-top: 60px;">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="120" height="120">
+      <path d="M256 48C141.31 48 48 141.31 48 256s93.31 208 208 208 208-93.31 208-208S370.69 48 256 48zm108.25 138.29l-136 136a16 16 0 01-22.62 0l-58.34-58.34a16 16 0 0122.62-22.62l47 47L341.63 163.67a16 16 0 1122.62 22.62z" fill="#2dd36f"/>
+    </svg>
+
+    <h1 style="font-weight: bold; margin-top: 20px">Payment Successful</h1>
+    <p style="color: gray; font-size: 16px;">
+      Your appointment has been booked. You can view your appointment details in the "My Appointments" page.
+    </p>
+  </div>
+
+  <div style="margin-top: 50px;">
+    <ion-button expand="block" size="large" (click)="goMyAppointments()">
+      View My Appointments
+    </ion-button>
+  </div>
+</ion-content>

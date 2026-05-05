@@ -1,27 +1,129 @@
-#container {
+/* Use the color from your login scss */
+$dental-blue: #005582;
+$glass-white: rgba(255, 255, 255, 0.9);
+
+.gray-background {
+  /* A very light blue-gray to keep it professional */
+  --background: #f0f4f7;
+}
+
+.welcome-container {
+  padding: 25px 15px 10px;
+  
+  p {
+    color: $dental-blue;
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 500;
+  }
+  
+  h1 {
+    font-weight: 800;
+    font-size: 2.2rem;
+    margin: 0;
+    color: #1e2d3e; /* Matches your custom-input color */
+  }
+}
+
+.section-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 25px 15px 12px;
+  color: $dental-blue;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Grid & Cards */
+.action-grid {
+  padding: 0 5px;
+}
+
+.nav-card {
+  /* Glassmorphism style to match login-card */
+  background: white;
+  border: 1px solid rgba($dental-blue, 0.1);
+  border-radius: 25px; /* Matching the rounded patient feel */
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 8px 20px rgba(0, 85, 130, 0.08);
+  margin: 8px;
+  transition: transform 0.2s;
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  p {
+    font-weight: 600;
+    margin-top: 12px;
+    color: #1e2d3e;
+    font-size: 0.95rem;
+  }
+}
+
+/* The "Book New" button - matching your Login Button style */
+.primary-card {
+  background: linear-gradient(135deg, $dental-blue, #007bbd);
+  box-shadow: 0 8px 20px rgba(0, 50, 80, 0.2);
+  
+  p { color: white !important; }
+  
+  .icon-box {
+    background: rgba(255, 255, 255, 0.2);
+    ion-icon { color: white; }
+  }
+}
+
+.icon-box {
+  width: 55px;
+  height: 55px;
+  border-radius: 15px; /* Matching login input/button radius */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba($dental-blue, 0.05);
+  
+  ion-icon { 
+    font-size: 2rem; 
+    color: $dental-blue;
+  }
+}
+
+/* Upcoming Appointment Card */
+.appointment-card {
+  border-radius: 25px;
+  margin: 0 10px;
+  background: white;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+  border-left: 5px solid $dental-blue;
+
+  h2.appt-date {
+    font-weight: 700;
+    color: #1e2d3e;
+  }
+}
+
+/* Post-Op Banner */
+.post-op-card {
+  border-radius: 20px;
+  margin: 10px;
+  background: white;
+  border: 1px solid rgba($dental-blue, 0.1);
+
+  .danger-bg {
+    background: #ffeded;
+    ion-icon { color: #eb445a; }
+  }
+  
+  h3 { font-weight: 700; color: #1e2d3e; }
+}
+
+.empty-state {
   text-align: center;
-
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-#container strong {
-  font-size: 20px;
-  line-height: 26px;
-}
-
-#container p {
-  font-size: 16px;
-  line-height: 22px;
-
-  color: #8c8c8c;
-
-  margin: 0;
-}
-
-#container a {
-  text-decoration: none;
+  padding: 40px 20px;
+  color: #9ca3af;
+  ion-icon { font-size: 3rem; margin-bottom: 10px; }
 }

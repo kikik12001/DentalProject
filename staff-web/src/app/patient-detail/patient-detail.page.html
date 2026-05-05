@@ -1,0 +1,108 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <!-- The Back Button automatically takes them back to the Dashboard -->
+      <ion-back-button defaultHref="/dashboard"></ion-back-button>
+    </ion-buttons>
+    <!-- print name of selected patient -->
+    <ion-title *ngIf="!isLoading">{{ patientData?.name }}'s File</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding" style="--background: #f4f5f8;">
+
+  <div *ngIf="isLoading" style="text-align: center; margin-top: 50px;">
+    <ion-spinner></ion-spinner>
+    <p>Loading medical records...</p>
+  </div>
+
+  <div *ngIf="!isLoading && patientData" style="max-width: 900px; margin: 0 auto;">
+    
+    <!-- PATIENT PROFILE -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="person-outline" style="vertical-align: middle;"></ion-icon> 
+          Patient Details
+        </ion-card-title>
+      </ion-card-header>
+      
+      <ion-card-content>
+        <!-- If isEditing is false, they are locked. If true, they unlock -->
+        <ion-item><ion-label position="stacked">Full Name</ion-label><ion-input [(ngModel)]="patientData.name" [readonly]="!isEditing"></ion-input></ion-item>
+        <ion-item><ion-label position="stacked">Date of Birth</ion-label><ion-input type="date" [(ngModel)]="patientData.dob" [readonly]="!isEditing"></ion-input></ion-item>
+        <ion-item><ion-label position="stacked">Phone Number</ion-label><ion-input type="tel" [(ngModel)]="patientData.phone" [readonly]="!isEditing"></ion-input></ion-item>
+        <ion-item><ion-label position="stacked">Email</ion-label><ion-input type="email" [(ngModel)]="patientData.email" [readonly]="!isEditing"></ion-input></ion-item>
+        <ion-item><ion-label position="stacked">Home Address</ion-label><ion-input [(ngModel)]="patientData.address" [readonly]="!isEditing"></ion-input></ion-item>
+        <ion-item><ion-label position="stacked">PPS Number</ion-label><ion-input [(ngModel)]="patientData.pps" [readonly]="!isEditing"></ion-input></ion-item>
+        <ion-item><ion-label position="stacked">Allergies</ion-label><ion-input [(ngModel)]="patientData.allergies" [readonly]="!isEditing"></ion-input></ion-item>
+
+        <!-- Edit / Save Action Buttons -->
+        <div style="margin-top: 15px; text-align: right;">
+          <ion-button *ngIf="!isEditing" fill="outline" (click)="toggleEdit()">
+            <ion-icon name="create-outline" slot="start"></ion-icon> Adjust Details
+          </ion-button>
+          <ion-button *ngIf="isEditing" color="medium" fill="clear" (click)="toggleEdit()">Cancel</ion-button>
+          <ion-button *ngIf="isEditing" color="success" (click)="savePatientDetails()">
+            <ion-icon name="save-outline" slot="start"></ion-icon> Save Changes
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- BILLING & TRANSACTIONS -->
+    <ion-card style="margin-top: 20px;">
+      <ion-card-header style="display: flex; justify-content: space-between; align-items: center;">
+        <ion-card-title>
+          <ion-icon name="card-outline" style="vertical-align: middle;"></ion-icon> Payment History
+        </ion-card-title>
+        <!-- Button to open the "Add Payment" modal -->
+        <ion-button size="small" (click)="isPaymentModalOpen = true">
+          <ion-icon name="cash-outline" slot="start"></ion-icon> Add Payment
+        </ion-button>
+      </ion-card-header>
+
+      <ion-card-content>
+        <ion-list>
+          <!-- if there are no transaction, show a message-->
+          <div *ngIf="transactions.length === 0" style="text-align: center; padding: 20px; color: #888;">No payment history on file.</div>
+          <!-- list of transaction, include procedure, date-->
+          <ion-item *ngFor="let trans of transactions">
+            <ion-icon name="checkmark-circle" slot="start" color="success"></ion-icon>
+            <ion-label>
+              <h2>{{ trans.procedure || trans.description }}</h2>
+              <p>{{ trans.date | date:'mediumDate' }}</p>
+            </ion-label>
+            <ion-note slot="end" color="dark" style="font-weight: bold; font-size: 1.1em;">€{{ trans.amount }}</ion-note>
+            <ion-button fill="clear" slot="end" *ngIf="trans.receiptText" (click)="generateReceipt(trans)">
+              <ion-icon name="download-outline" slot="icon-only"></ion-icon>
+            </ion-button>
+          </ion-item>
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+
+  </div>
+
+  <!-- LOG NEW PAYMENT -->
+  <ion-modal [isOpen]="isPaymentModalOpen">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar color="primary">
+          <ion-title>Add Payment</ion-title>
+          <ion-buttons slot="end"><ion-button (click)="isPaymentModalOpen = false">Cancel</ion-button></ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="ion-padding">
+        <!-- form for add payment-->
+        <div style="max-width: 400px; margin: 0 auto; padding-top: 20px;">
+          <ion-item fill="outline" class="ion-margin-bottom"><ion-label position="floating">Amount (€) *</ion-label><ion-input type="number" [(ngModel)]="newPayment.amount"></ion-input></ion-item>
+          <ion-item fill="outline" class="ion-margin-bottom"><ion-label position="floating">Treatment Description</ion-label><ion-input type="text" [(ngModel)]="newPayment.description"></ion-input></ion-item>
+          <ion-item fill="outline" class="ion-margin-bottom"><ion-label position="floating">Date Paid *</ion-label><ion-input type="date" [(ngModel)]="newPayment.date"></ion-input></ion-item>
+          <ion-button expand="block" color="success" style="margin-top: 30px;" (click)="addPayment()">Process Payment</ion-button>
+        </div>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+</ion-content>

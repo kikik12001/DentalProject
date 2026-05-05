@@ -1,0 +1,89 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+      <ion-menu-button></ion-menu-button> 
+    </ion-buttons>
+    <ion-title>Contact Us</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content color="light">
+  
+  <!-- CLINIC INFO CARD -->
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title color="primary">Get in Touch</ion-card-title>
+      <ion-card-subtitle>We are here to help with your dental needs.</ion-card-subtitle>
+    </ion-card-header>
+
+    <ion-card-content>
+      <ion-list lines="none">
+        <ion-item>
+          <ion-icon name="location-outline" slot="start" color="medium"></ion-icon>
+          <ion-label class="ion-text-wrap">
+            <h2>Address</h2>
+            <p>123 Dental Street, Dublin, Ireland</p>
+          </ion-label>
+        </ion-item>
+
+        <ion-item>
+          <ion-icon name="call-outline" slot="start" color="medium"></ion-icon>
+          <ion-label>
+            <h2>Phone</h2>
+            <p>(01) 234 5678</p>
+          </ion-label>
+        </ion-item>
+
+        <ion-item>
+          <ion-icon name="mail-outline" slot="start" color="medium"></ion-icon>
+          <ion-label>
+            <h2>Email</h2>
+            <p>clinic@dental.com</p>
+          </ion-label>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- CONTACT FORM CARD -->
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Send us a Message</ion-card-title>
+    </ion-card-header>
+
+    <ion-card-content>
+      <ion-item fill="outline" class="ion-margin-bottom">
+        <ion-label position="floating">Your Name</ion-label>
+        <ion-input type="text" [(ngModel)]="contactData.name"></ion-input>
+      </ion-item>
+
+      <ion-item fill="outline" class="ion-margin-bottom">
+        <ion-label position="floating">Your Email</ion-label>
+        <ion-input type="email" [(ngModel)]="contactData.email"></ion-input>
+      </ion-item>
+
+      <ion-item fill="outline" class="ion-margin-bottom">
+        <ion-label position="floating">Phone Number</ion-label>
+        <ion-input type="tel" [(ngModel)]="contactData.phone"></ion-input>
+      </ion-item>
+
+      <ion-item fill="outline" class="ion-margin-bottom">
+        <ion-label position="floating">Subject</ion-label>
+        <ion-input type="text" [(ngModel)]="contactData.subject"></ion-input>
+      </ion-item>
+
+      <ion-item fill="outline" class="ion-margin-bottom">
+        <ion-label position="floating">Message</ion-label>
+        <ion-textarea rows="4" [(ngModel)]="contactData.message"></ion-textarea>
+      </ion-item>
+
+      <ion-button expand="block" color="primary" (click)="sendMessage()" [disabled]="isSending">
+        <ion-icon name="send-outline" slot="start" *ngIf="!isSending"></ion-icon>
+        <ion-spinner name="crescent" *ngIf="isSending"></ion-spinner>
+        {{ isSending ? 'Sending...' : 'Send Message' }}
+      </ion-button>
+    </ion-card-content>
+  </ion-card>
+
+</ion-content>

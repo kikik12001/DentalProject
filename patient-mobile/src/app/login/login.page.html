@@ -1,25 +1,38 @@
-<ion-header>
-  <ion-toolbar color="primary">
-    <ion-title>Patient Login</ion-title>
-  </ion-toolbar>
-</ion-header>
+<!-- We remove the header to allow the background image to fill the status bar area -->
+<ion-content class="login-background">
+  <div class="login-container">
+    <div class="login-card">
+      
+      <div class="brand-header">
+        <ion-icon name="medical" size="large"></ion-icon>
+        <h2>Patient Portal</h2>
+        <p>Welcome to Clinic</p>
+      </div>
 
-<ion-content class="ion-padding">
-  <ion-item>
-    <ion-label position="floating">Email</ion-label>
-    <ion-input type="email" [(ngModel)]="email"></ion-input>
-  </ion-item>
+      <div class="form-group">
+        <!-- We use 'fill="none"' and custom classes to override the default Ionic lines -->
+        <ion-item fill="none" class="custom-input">
+          <ion-label position="floating">Email</ion-label>
+          <ion-input type="email" [(ngModel)]="email"></ion-input>
+          <ion-icon slot="start" name="mail-outline"></ion-icon>
+        </ion-item>
 
-  <ion-item>
-    <ion-label position="floating">Password</ion-label>
-    <ion-input type="password" [(ngModel)]="password"></ion-input>
-  </ion-item>
+        <ion-item fill="none" class="custom-input">
+          <ion-label position="floating">Password</ion-label>
+          <ion-input type="password" [(ngModel)]="password"></ion-input>
+          <ion-icon slot="start" name="lock-closed-outline"></ion-icon>
+        </ion-item>
+      </div>
 
-  <ion-button expand="block" class="ion-margin-top" (click)="login()">
-    Login
-  </ion-button>
+      <ion-button expand="block" class="login-btn" (click)="login()">
+        Login
+      </ion-button>
 
-  <ion-button expand="block" fill="clear" routerLink="/register">
-    Don't have an account? Register here
-  </ion-button>
+      <!-- Clear buttons look great against glass backgrounds -->
+      <ion-button expand="block" fill="clear" class="register-link" routerLink="/register">
+        Don't have an account? Register
+      </ion-button>
+      
+    </div>
+  </div>
 </ion-content>

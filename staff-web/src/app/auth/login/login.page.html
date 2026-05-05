@@ -1,0 +1,39 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>login</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="login-backgraound">
+  <div class="login-container">
+    <!--login card-->
+    <div class="login-card">
+      <div class="brand-header">
+        <ion-icon name="medical" color="primary"></ion-icon>
+          <h2>Dental Staff Portal </h2>
+          <P>Please log in to your staff account</P>
+      </div>
+
+    <!--input form-->
+    <div class="form-group">
+      <ion-item fill="outline" class="custom-input">
+        <ion-label position="floating">Staff Email</ion-label>
+        <ion-input type="email" [(ngModel)]="email"></ion-input>
+        <ion-icon slot="start" name="mail-outline"></ion-icon>
+      </ion-item>
+
+      <ion-item fill="outline" class="custom-input mt-3">
+        <ion-label position="floating">Password</ion-label>
+        <ion-input type="password" [(ngModel)]="password"></ion-input>
+        <ion-icon slot="start" name="lock-closed-outline"></ion-icon>
+      </ion-item>
+    </div>
+
+    <ion-button expand="block" class="login-btn" (click)="loginStaff()">
+      Login
+    </ion-button>
+
+  </div>
+
+  </div>
+</ion-content>

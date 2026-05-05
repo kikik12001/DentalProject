@@ -15,7 +15,7 @@
   </div>
 
   <div *ngFor="let staff of clinicians">
-    
+    <!-- Card for each clinician -->
     <ion-card (click)="selectClinician(staff)" button="true">
       <ion-item lines="none">
         <ion-avatar slot="start">
@@ -30,13 +30,14 @@
       <ion-card-content>
         <p><strong>Available Procedures:</strong></p>
         <ul>
+          <!-- list of procedure for selected clinician -->
           <li *ngFor="let proc of staff.procedures">
             {{ proc.name }} <em>({{ proc.duration }} mins)</em>
           </li>
         </ul>
       </ion-card-content>
     </ion-card>
-
+    <!-- booking form when click the clinician-->
     <div *ngIf="selectedClinician?.id === staff.id" class="ion-margin-bottom ion-padding-horizontal">
       
       <ion-card color="light" class="ion-no-margin">
@@ -62,6 +63,9 @@
           <ion-button expand="block" color="success" (click)="generateSlots()">
             Find Available Slots
           </ion-button>
+          <p class="ion-text-center ion-margin-top" style="font-size: 0.9rem; color: #666;">
+            Note: the clinic is closed for lunch from 12:30 to 13:30. No appointment start times are shown for that period.
+          </p>
         </div>
 
         <div *ngIf="availableSlots.length > 0 " class="ion-padding-top">
@@ -86,7 +90,7 @@
                 <p><strong>Date:</strong> {{ selectedDate }}</p>
                 <p><strong>Time:</strong> {{ selectedTime }}</p>
 
-                <ion-button expand="block" color="light" class="ion-margin-top">
+                <ion-button expand="block" color="light" class="ion-margin-top" (click)="confirmBooking()">
                   Confirm Appointment
                 </ion-button>
               </ion-card-content>

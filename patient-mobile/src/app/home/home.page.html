@@ -1,37 +1,99 @@
-<ion-header [translucent]="true">
+<ion-header [translucent]="true" class="ion-no-border">
   <ion-toolbar color="primary">
     <ion-title>Patient Dashboard</ion-title>
-    <ion-button slot="end">
+    <ion-buttons slot="end">
       <ion-button (click)="logout()">
         <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
       </ion-button>
-    </ion-button>  
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
-  <div class="ion-text-center">
-    <h1>Welcome, {{ patientName }}!</h1>
+<ion-content class="ion-padding gray-background">
+  <!-- Welcome Header-->
+  <div class="welcome-container">
+    <p>Welcome back,</p>
+    <h1>{{ patientName || 'Patient' }} 👋</h1>
   </div>
 
-  <ion-list-header>
-    <ion-label>Upcoming Appointment</ion-label>
-  </ion-list-header>
+  <!-- Navigation Grid-->
+  <h2 class="section-title">Our Services</h2>
+  <ion-grid class="ion-no-padding action-grid">
+    <ion-row>
+      <!-- Book New -->
+      <ion-col size="6">
+        <div class="nav-card primary-card" (click)="goToBookAppointment()">
+          <div class="icon-box white-icon">
+            <ion-icon name="add-circle-outline"></ion-icon>
+          </div>
+          <p>Book New</p>
+        </div>
+      </ion-col>
 
-  <ion-card *ngIf="upcomingAppointment">
+      <!-- My History -->
+      <ion-col size="6">
+        <div class="nav-card" (click)="goToMyAppointments()">
+          <div class="icon-box secondary-bg">
+            <ion-icon name="document-text-outline" color="primary"></ion-icon>
+          </div>
+          <p>My History</p>
+        </div>
+      </ion-col>
+    </ion-row>
+
+    <ion-row style="margin-top: 10px;">
+      <!-- Receipts -->
+      <ion-col size="6">
+        <div class="nav-card" (click)="goToReceipts()">
+          <div class="icon-box secondary-bg">
+            <ion-icon name="card-outline" color="primary"></ion-icon>
+          </div>
+          <p>Receipts</p>
+        </div>
+      </ion-col>
+
+      <!-- NEW: Contact -->
+      <ion-col size="6">
+        <div class="nav-card" (click)="goToContact()">
+          <div class="icon-box secondary-bg">
+            <ion-icon name="chatbubble-ellipses-outline" color="primary"></ion-icon>
+          </div>
+          <p>Contact Us</p>
+        </div>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <!-- Upcoming Appointment -->
+  <h2 class="section-title">Upcoming Appointment</h2>
+  
+  <ion-card *ngIf="upcomingAppointment" class="appointment-card">
     <ion-item lines="none">
-      <ion-icon name="calendar-number-outline" slot="start"></ion-icon>
+      <ion-icon name="calendar-outline" slot="start" color="primary"></ion-icon>
       <ion-label>
-        <h2>{{ upcomingAppointment.date }}</h2>
+        <h2 class="appt-date">{{ upcomingAppointment.date }} at {{ upcomingAppointment.time }}</h2>
         <p><strong>Procedure:</strong> {{ upcomingAppointment.procedure }}</p>
-        <p><strong>Clinician:</strong> {{ upcomingAppointment.clinician }}</p>
+        <ion-badge color="success" mode="ios">{{ upcomingAppointment.status }}</ion-badge>
       </ion-label>
     </ion-item>
   </ion-card>
 
-  <ion-card *ngIf="!upcomingAppointment" class="ion-padding ion-text-center">
-    <ion-text color="medium">
-    <p>There is no upcoming appointment.</p>
-    </ion-text>
+  <div *ngIf="!upcomingAppointment" class="empty-state">
+    <ion-icon name="notifications-off-outline"></ion-icon>
+    <p>No upcoming appointments.</p>
+  </div>
+
+  <!-- Post-Op Care Section -->
+  <h2 class="section-title">Advice & Care</h2>
+  <ion-card class="post-op-card" (click)="goToPostOp()">
+    <ion-item lines="none" detail="true">
+      <div class="icon-box-small danger-bg" slot="start">
+        <ion-icon name="medkit-outline" color="light"></ion-icon>
+      </div>
+      <ion-label>
+        <h3>Post-Op Care</h3>
+        <p>Recovery tips after treatment</p>
+      </ion-label>
+    </ion-item>
   </ion-card>
 </ion-content>

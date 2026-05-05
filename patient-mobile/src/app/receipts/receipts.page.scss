@@ -1,0 +1,36 @@
+.gray-background { --background: #f0f4f7; }
+
+.welcome-container {
+  padding: 10px;
+  h1 { font-weight: 800; font-size: 2rem; color: #1e2d3e; }
+  p { color: #005582; font-weight: 500; margin: 0; }
+}
+
+.receipt-card {
+  border-radius: 20px;
+  margin: 10px 0;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  background: white;
+
+  .amount { font-weight: 800; font-size: 1.3rem; color: #1e2d3e; }
+  .date { color: #6b7280; font-size: 0.9rem; }
+  .status { color: #2dd36f; font-weight: 600; font-size: 0.8rem; text-transform: uppercase; }
+}
+
+.icon-box-receipt {
+  background: #f0f7ff;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  ion-icon { font-size: 1.5rem; }
+}
+
+.empty-state {
+  text-align: center;
+  margin-top: 50px;
+  color: #9ca3af;
+  ion-icon { font-size: 4rem; }
+}

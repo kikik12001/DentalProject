@@ -1,84 +1,137 @@
-import { Component, OnInit } from '@angular/core';
-import { IonicModule} from '@ionic/angular';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
-import { addIcons} from 'ionicons';
-import { logOutOutline, calendarOutline } from 'ionicons/icons';
-import { Firestore, doc, getDoc, collection, query, where, getDocs, orderBy, limit, QuerySnapshot } from '@angular/fire/firestore';
-import { Auth, onAuthStateChanged, signOut } from '@angular/fire/auth';
+import { Router, RouterModule } from '@angular/router'; 
+import { addIcons } from 'ionicons';
+import {
+  logOutOutline,
+  calendarOutline,
+  addCircleOutline,
+  documentTextOutline,
+  notificationsOffOutline,
+  cardOutline,
+  chatbubbleEllipsesOutline,
+  medkitOutline
+} from 'ionicons/icons';
+import { Firestore, doc, getDoc, collection, query, where, getDocs, orderBy, limit } from '@angular/fire/firestore';
+import { Auth, authState, signOut } from '@angular/fire/auth';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule],
+  imports: [IonicModule, CommonModule, RouterModule],
 })
-
-export class HomePage implements OnInit {
-  patientName: string = '';
-  //creat a variable called upcomingAppointment.
+export class HomePage implements OnInit, OnDestroy {
+  patientName: string = 'Patient';
   upcomingAppointment: any = null;
+  private authSubscription!: Subscription;
 
   constructor(private auth: Auth, private firestore: Firestore, private router: Router) {
-    addIcons({ 'log-out-outline': logOutOutline, 'calendar-outline': calendarOutline });
+    // Registering all icons used in the dashboard
+    addIcons({
+      'log-out-outline': logOutOutline,
+      'calendar-outline': calendarOutline,
+      'add-circle-outline': addCircleOutline,
+      'document-text-outline': documentTextOutline,
+      'notifications-off-outline': notificationsOffOutline,
+      'card-outline': cardOutline,           
+      'chatbubble-ellipses-outline': chatbubbleEllipsesOutline,
+      'medkit-outline': medkitOutline
+    });
   }
 
   ngOnInit() {
-    //onAuthStateChanged checks if a user is logged in right now.
-    onAuthStateChanged(this.auth, (user) => {
+    this.authSubscription = authState(this.auth).subscribe((user) => {
       if (user) {
-        //if a user is found, we run these two funcions using their unique ID (UID)
         this.loadPatientData(user.uid);
         this.loadNearestAppointment(user.uid);
       } else {
-        //if someone tries to access /home without login, kick them back to login page.
+        // if someone try to get in kick back to login
         this.router.navigate(['/login']);
       }
     });
   }
-// This function gets the Patient's name for the "welcome" message.
+
+  ngOnDestroy() {
+    if (this.authSubscription) {
+      this.authSubscription.unsubscribe();
+    }
+  }
+
   async loadPatientData(uid: string) {
-    const userSnap = await getDoc(doc(this.firestore, `Users/${uid}`));
+    try {
+      const userSnap = await getDoc(doc(this.firestore, `Users/${uid}`));
       if (userSnap.exists()) {
         this.patientName = userSnap.data()['name'];
       }
-    }
-//search logic
-  async loadNearestAppointment(uid: string) {
-    try {
-      // tell the app to look in the 'Appointments' folder in Firebase
-      const apptRef = collection(this.firestore, 'Appointments');
-      //create a "query"
-      const q = query(
-        apptRef,
-        //only get appointments where the 'patientID' matches the logged-in user
-        where('patientId', '==', uid),
-        //sort them by date in ascending order so the soonest is first
-        orderBy('date', 'asc'),
-        //only get 1 at the top of the list even if there are many appointments.
-        limit(1)
-      );
-      
-      // execute the search and wait for the results
-      const querySnapshot = await getDocs(q);
-
-      //check if we found any appointments
-      if (!querySnapshot.empty) {
-        // if the search result is not empty, save the first item [0] to our variable
-        this.upcomingAppointment = querySnapshot.docs[0].data();
-      } else {
-        //if we didn't find any appointments, the variable stays null, triggering the "no appointments" message in the HTML
-        this.upcomingAppointment = null;
-      }
     } catch (error) {
-      //error message if something goes wrong with the search
-      console.error("Error loading appointment:", error);
+      console.error("Error loading patient name:", error);
     }
   }
-  
-  async logout(){
+
+  async loadNearestAppointment(uid: string) {
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      const apptRef = collection(this.firestore, 'appointments');
+
+      // ask for the patient's appointments
+      const q = query(
+        apptRef,
+        where('patientId', '==', uid)
+      );
+
+      const querySnapshot = await getDocs(q);
+      const validStatuses = ['Awaiting Deposit', 'pending', 'confirmed'];
+
+      let validAppointments: any[] = [];
+
+      // Check the date and status here
+      querySnapshot.forEach((doc) => {
+        const appt = doc.data() as any;
+        if (appt.date >= today && validStatuses.includes(appt.status)) {
+          validAppointments.push(appt);
+        }
+      });
+
+      // Sort by date and time 
+      validAppointments.sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time));
+
+      // get the nearest one
+      this.upcomingAppointment = validAppointments.length > 0 ? validAppointments[0] : null;
+
+      console.log('Successfully loaded nearest appointment:', this.upcomingAppointment);
+
+    } catch (error) {
+      console.error("Error loading appointment:", error);
+      this.upcomingAppointment = null;
+    }
+  }
+
+  async logout() {
     await signOut(this.auth);
     this.router.navigate(['/login']);
   }
+
+  goToBookAppointment() {
+    this.router.navigate(['/book-appointment']);
+  }
+
+  goToMyAppointments() {
+    this.router.navigate(['/my-appointments']);
+  }
+
+  goToReceipts() {
+  this.router.navigate(['/receipts']);
+}
+
+  goToContact() {
+    this.router.navigate(['/contact']);
+  }
+
+  goToPostOp() {
+    this.router.navigate(['/post-op']);
+}
 }

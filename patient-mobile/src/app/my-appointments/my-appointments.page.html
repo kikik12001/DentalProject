@@ -1,0 +1,91 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>My Appointments</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="router.navigate(['/home'])">Home</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  
+  <!-- Tabs Upcoming or History -->
+  <ion-segment (ionChange)="segmentChanged($event)" value="future">
+    <ion-segment-button value="future">
+      <ion-label>Upcoming</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="past">
+      <ion-label>History</ion-label>
+    </ion-segment-button>
+  </ion-segment>
+
+  <!-- UPCOMING TAB -->
+  <div *ngIf="selectedSegment === 'future'" style="margin-top: 15px;">
+    
+    <ion-text *ngIf="futureAppointments.length === 0" color="medium">
+      <p class="ion-text-center">No upcoming appointments found.</p>
+    </ion-text>
+
+    <ng-container *ngFor="let app of futureAppointments">
+      <ion-card *ngIf="app.patientId === currentUid" (click)="selectAppointment(app.id)" style="cursor: pointer;">
+        <ion-card-header>
+          <ion-card-subtitle>{{ app.date }} at {{ app.time }}</ion-card-subtitle>
+          <ion-card-title>{{ app.procedure }}</ion-card-title>
+          <ion-text [color]="app.status === 'confirmed' ? 'success' : app.status === 'cancelled' ? 'danger' : 'warning'">
+            <strong>Status: {{ app.status }}</strong>
+          </ion-text>
+          <p style="margin-top: 5px; color: gray; font-size: 14px;">With {{ app.clinician }}</p>
+        </ion-card-header>
+
+      <!-- THIS ONLY SHOWS IF YOU CLICK THE CARD -->
+      <ion-card-content *ngIf="selectedAppointmentId === app.id">
+        <ion-button expand="block" color="danger" *ngIf="app.status !== 'cancelled'" (click)="cancelAppointment(app.id, $event)">
+          Cancel Appointment
+        </ion-button>
+        <p *ngIf="app.status === 'cancelled'" style="color: red; text-align: center;">
+          This appointment has been cancelled.
+        </p>
+      </ion-card-content>
+    </ion-card>
+    </ng-container>
+  </div>
+
+  <!-- HISTORY TAB -->
+  <div *ngIf="selectedSegment === 'past'" style="margin-top: 15px;">
+    
+    <ion-text *ngIf="pastAppointment.length === 0" color="medium">
+      <p class="ion-text-center">No past appointments found.</p>
+    </ion-text>
+
+    <ng-container *ngFor="let app of pastAppointment">
+      <ion-card *ngIf="app.patientId === currentUid" (click)="selectAppointment(app.id)" style="cursor: pointer;">
+        <ion-card-header>
+          <ion-card-subtitle>{{ app.date }} at {{ app.time }}</ion-card-subtitle>
+          <ion-card-title>{{ app.procedure }}</ion-card-title>
+          <p style="margin-top: 5px; color: gray; font-size: 14px;">With {{ app.clinician }}</p>
+
+          <ion-text [color]="app.status === 'confirmed' ? 'success' : app.status === 'cancelled' ? 'danger' : app.status === 'completed' ? 'tertiary' : 'warning'">
+            <strong style="display: block; margin-top: 5px;">Status: {{ app.status | uppercase }}</strong>
+          </ion-text>
+          
+          <ion-text *ngIf="app.isPaid" color="success" style="font-weight: bold;">Paid</ion-text>
+        </ion-card-header>
+      <ion-card-content *ngIf="selectedAppointmentId === app.id">
+        <div *ngIf="app.receiptText; else noReceiptText" style="margin-top: 10px;">
+          <ion-card-title style="font-size: 1rem; margin-bottom: 10px;">Receipt</ion-card-title>
+          <p>{{ app.receiptText }}</p>
+        </div>
+        <ng-template #noReceiptText>
+          <p style="color: gray; text-align: center; margin-top: 10px;">
+            Receipt not yet available.
+          </p>
+        </ng-template>
+      </ion-card-content>
+    </ion-card>
+    </ng-container>
+  </div>
+
+</ion-content>

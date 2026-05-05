@@ -1,58 +1,422 @@
 <ion-header>
   <ion-toolbar color="primary">
     <ion-title>Clinic Dashboard</ion-title>
+    <!-- search bar -->
+    <div slot="secondary"
+      style="display: flex; align-items: center; max-width: 400px; background: white; border-radius: 4px; padding-right: 5px;">
+      <ion-searchbar placeholder="Search patient by Name or DOB" style="padding: 0;" [(ngModel)]="searchQuery"
+        (keyup.enter)="executeSearch()">
+      </ion-searchbar>
+
+      <ion-button fill="clear" color="primary" (click)="executeSearch()" style="margin: 0;">
+        <ion-icon name="search-outline"></ion-icon>
+      </ion-button>
+      <!-- clear btn only appears if there are search results -->
+      <ion-button *ngIf="searchResults.length > 0" fill="clear" color="medium" (click)="clearSearch()"
+        style="margin:0;">
+        <ion-icon name="close-circle"></ion-icon>
+      </ion-button>
+    </div>
+
+    <ion-buttons slot="end">
+
+      <!-- button to create a new patient -->
+      <ion-button (click)="isNewPatientModalOpen = true" color="light">
+        <ion-icon name="person-add" slot="start"></ion-icon>
+        Add New Patient
+      </ion-button>
+
+      <!-- This button only exists in the code if the user's role is exactly 'admin' -->
+      <ion-button *ngIf="currentUserRole === 'admin'" (click)="isStaffModalOpen = true" color="light">
+        <ion-icon name="person-add-outline" slot="start"></ion-icon>
+        Add Staff
+      </ion-button>
+
+      <!-- logout button, it trigger logout funtion in TS -->
+      <ion-button (click)="logout()" color="light">
+        <ion-icon name="log-out-outline" slot="start"></ion-icon>
+        Logout
+      </ion-button>
+
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
+<!-- search results dropdown-->
+<div class="search-dropdown" *ngIf="searchResults.length > 0"
+  style="position: absolute; top: 60px; right: 250px; z-index: 1000; background: white; width: 350px; border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); max-height: 400px; overflow-y: auto;">
+  <ion-list lines="full">
+    <!-- ngfor loops through the search results -->
+    <ion-item button *ngFor="let patient of searchResults" (click)="goToPatient(patient.id)">
+      <ion-icon name="person-circle-outline" slot="start" color="primary"></ion-icon>
+      <ion-label>
+        <h2 style="font-weight: bold;">{{ patient.name }}</h2>
+        <p> DOB: {{ patient.dob }} </p>
+        <p *ngIf="patient.phone" style="font-size: 0.8em; color: #666">Phone: {{ patient.phone }}</p>
+      </ion-label>
+      <ion-icon name="chevron-forward-outline" slot="end" color="medium"></ion-icon>
+    </ion-item>
+  </ion-list>
+</div>
 
+<!-- MAIN DASHBOARD CONTENT -->
 <ion-content class="ion-padding">
-  
+
   <div class="dashboard-header">
     <h2>Daily Schedule</h2>
     <div class="date-display">
-      <ion-icon name="calendar-outline"></ion-icon>
-      <!--to staff knows what day day are looking at-->
-      <span>{{ currentViewDate }}</span> 
+      <!-- move calendar back and forth by 1 day -->
+      <ion-button fill="clear" size="small" (click)="changeViewDate(-1)">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+      </ion-button>
+      <!-- date picker, it's hidden visually until clicked -->
+      <ion-datetime id="viewDatePicker" presentation="date" [(ngModel)]="currentViewDate"
+        (ionChange)="onDateChange($event)" style="display: none;"></ion-datetime>
+
+      <ion-datetime-button datetime="viewDatePicker" style="min-width: 220px;">
+        <ion-button fill="clear" size="small">
+          <ion-icon name="calendar-outline" slot="start"></ion-icon>
+          {{ currentViewDate | date:'mediumDate' }}
+        </ion-button>
+      </ion-datetime-button>
+
+      <ion-button fill="clear" size="small" (click)="changeViewDate(1)">
+        <ion-icon name="chevron-forward-outline"></ion-icon>
+      </ion-button>
     </div>
   </div>
 
-  <!-- Loading State -->
+  <!-- only shows if the 'isLoading' variable is true -->
   <div class="loading-state" *ngIf="isLoading">
     <ion-spinner name="crescent"></ion-spinner>
-    <p>Syncing with Cloud...</p>
+    <p>Syncing with Database...</p>
   </div>
 
-  <!-- The Calendar Grid -->
+  <!-- CALENDAR GRID -->
   <div class="table-container" *ngIf="!isLoading">
     <table class="schedule-table">
-      
-      <!-- Top Row - Clinician Names -->
+
+      <!-- Top Row the clinicians -->
       <thead>
         <tr>
           <th class="time-col-header">Time</th>
+          <!-- *ngFor reads our staffList array and creates for every clinician -->
           <th *ngFor="let staff of staffList">{{ staff }}</th>
         </tr>
       </thead>
-      
-      <!-- Data Rows -->
+
+      <!-- The rows and columns -->
       <tbody>
+        <!-- Create a row for every 10-minute time slot -->
         <tr *ngFor="let time of timeSlots">
-          
-          <!-- Left Column: Time -->
+
           <td class="time-cell">{{ time }}</td>
-          
-          <!-- Clinic Columns -->
-          <td *ngFor="let staff of staffList" class="grid-cell">
+
+          <!-- Inside each row, create a cell for every clinician -->
+          <td *ngFor="let staff of staffList" class="grid-cell"
             
-            <!-- If an appointment exists here, show the card -->
-            <div class="appointment-card" *ngIf="calendarGrid[time][staff]">
-              <span class="procedure-tag">{{ calendarGrid[time][staff]?.procedure }}</span>
-            </div>
-            
+            [attr.rowspan]="calendarGrid[time][staff].type === 'booking' ? calendarGrid[time][staff].span : null"
+            [style.display]="calendarGrid[time][staff].type === 'hidden' ? 'none' : 'table-cell'">
+            <!--attr.rowspan tells HTML to merge cells, and hide the cell -->
+
+            <!-- If the database says this box has a booking in it -->
+            <ng-container *ngIf="calendarGrid[time][staff].type === 'booking'">
+              <div class="appointment-card" style="cursor: pointer;"
+                [ngStyle]="getProcedureStyle(calendarGrid[time][staff].booking?.procedure)"
+                (click)="openEditModal(calendarGrid[time][staff].booking!)">
+                <span class="procedure-tag" style="display: block; font-weight: bold;">
+                  {{ calendarGrid[time][staff].booking?.procedure }}
+                </span>
+                <span style="font-size: 0.8em; padding-left: 8px;">
+                  {{ calendarGrid[time][staff].booking?.patientName }}
+                </span>
+                <span style="font-size: 0.75em; padding-left: 8px; text-transform: capitalize; font-style: italic;">
+                  {{ calendarGrid[time][staff].booking?.status }}
+                </span>
+              </div>
+            </ng-container>
+
+            <!-- If the database says this box is empty -->
+            <ng-container *ngIf="calendarGrid[time][staff].type === 'empty'">
+              <!-- This creates a clickable invisible area. We pass the specific 'time' and 'staff' variables into the function so it knows exactly where we clicked -->
+              <div class="empty-slot-btn" style="width:  100%; height: 100%; cursor: pointer;"
+                (click)="openBookingModal(time, staff)"></div>
+            </ng-container>
+
+            <!-- Lunch closure visible row -->
+            <ng-container *ngIf="calendarGrid[time][staff].type === 'lunch'">
+              <div class="lunch-cell">
+                Lunch Break
+              </div>
+            </ng-container>
+
           </td>
         </tr>
       </tbody>
 
     </table>
   </div>
+
+  <!-- ADD NEW STAFF -->
+  <!-- If true, the modal pops up over the screen. -->
+  <ion-modal [isOpen]="isStaffModalOpen">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar color="light">
+          <ion-title>Register Clinic Staff</ion-title>
+          <ion-buttons slot="end">
+            <!-- Clicking cancel simply changes the boolean to false, hiding the modal -->
+            <ion-button (click)="isStaffModalOpen = false">Cancel</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+
+      <ion-content class="ion-padding">
+        <div style="max-width: 400px; margin: 0 auto; padding-top: 20px;">
+          <h3 style="margin-bottom: 20px;">Create a staff account</h3>
+
+          <ion-item fill="outline" class="ion-margin-bottom">
+            <ion-label position="floating">Email Address</ion-label>
+            <!-- types here is instantly saved to newStaff.email in TS -->
+            <ion-input type="email" [(ngModel)]="newStaff.email"></ion-input>
+          </ion-item>
+
+          <ion-item fill="outline" class="ion-margin-bottom">
+            <ion-label position="floating">Password</ion-label>
+            <ion-input type="password" [(ngModel)]="newStaff.password"></ion-input>
+          </ion-item>
+
+          <ion-item fill="outline" class="ion-margin-bottom">
+            <ion-label position="floating">Role</ion-label>
+            <ion-select [(ngModel)]="newStaff.role">
+              <ion-select-option value="admin">Admin</ion-select-option>
+              <ion-select-option value="dentist">Dentist</ion-select-option>
+              <ion-select-option value="hygienist">Hygienist</ion-select-option>
+              <ion-select-option value="nurse">Nurse</ion-select-option>
+              <ion-select-option value="receptionist">Receptionist</ion-select-option>
+            </ion-select>
+          </ion-item>
+
+          <ion-button expand="block" size="large" (click)="createNewStaff()" style="margin-top: 30px;">
+            Create Staff Account
+          </ion-button>
+
+        </div>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+  <!-- BOOK APPOINTMENT -->
+  <ion-modal [isOpen]="isBookingModalOpen">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar color="primary">
+          <ion-title>Book Appointment</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="isBookingModalOpen = false">Cancel</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+
+      <ion-content class="ion-padding">
+        <div style="max-width: 400px; margin: 0 auto; padding-top: 20px;">
+
+          <!-- Auto filled time and doctor -->
+          <div style="background: #f4f5f8; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
+            <h3 style="margin: 0; color: #3880ff;">{{ newBooking.time }}</h3>
+            <p style="margin: 5px 0 0 0; color: #666;">With {{ newBooking.clinician }}</p>
+          </div>
+
+          <ion-item fill="outline" class="ion-margin-bottom">
+            <ion-label position="floating">Search Patient Database</ion-label>
+            <!-- Uses the search logic you already built! -->
+            <ion-input type="text" [(ngModel)]="searchQuery" (keyup)="executeSearch()"></ion-input>
+          </ion-item>
+
+          <!-- Search Results Dropdown -->
+          <ion-list *ngIf="searchResults.length > 0"
+            style="border: 1px solid #ccc; border-radius: 4px; margin-bottom: 15px; max-height: 150px; overflow-y: auto;">
+            <!-- Clicking a name saves both the Name AND the Database ID -->
+            <ion-item button *ngFor="let patient of searchResults"
+              (click)="newBooking.patientName = patient.name; newBooking.patientId = patient.id; searchResults = []; searchQuery = ''">
+              <ion-icon name="person-circle-outline" slot="start" color="primary"></ion-icon>
+              <ion-label>
+                <h2>{{ patient.name }}</h2>
+                <p>DOB: {{ patient.dob }}</p>
+              </ion-label>
+            </ion-item>
+          </ion-list>
+
+          <!-- Selected Patient Confirmation Box -->
+          <div *ngIf="newBooking.patientName"
+            style="background: #e5f9ed; color: #1e8e49; padding: 10px; border-radius: 8px; text-align: center; margin-bottom: 20px; font-weight: bold;">
+            <ion-icon name="checkmark-circle"></ion-icon> Patient Attached: {{ newBooking.patientName }}
+          </div>
+
+          <ion-item fill="outline" class="ion-margin-bottom">
+            <ion-label position="floating">Treatment</ion-label>
+            <ion-select [(ngModel)]="newBooking.procedure">
+              <!-- only show procedures available for the selected clinician -->
+              <ion-select-option *ngFor="let proc of getAvailableProcedures(newBooking.clinician)" [value]="proc">
+                {{ proc }} ({{ procedureDictionary[proc].duration }} mins)
+              </ion-select-option>
+            </ion-select>
+          </ion-item>
+
+          <ion-button expand="block" size="large" (click)="confirmAppointment()" style="margin-top: 30px;">
+            Confirm Booking
+          </ion-button>
+        </div>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+  <!-- Create patient file-->
+  <ion-modal [isOpen]="isNewPatientModalOpen">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar color="primary">
+          <ion-title>Create Patient Record</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="isNewPatientModalOpen = false"> Cancel </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+
+      <ion-content class="ion-padding">
+        <div style="max-width: 400px; margin:0 auto; padding-top: 10px; padding-bottom: 40px;">
+          <!-- this input bind directly to the newPatient object in TS -->
+          <ion-item fill="outline" class="ion-margin-bottom">
+            <ion-label position="floating">Full Name *</ion-label>
+            <ion-input type="text" [(ngModel)]="newPatient.name"></ion-input>
+          </ion-item>
+
+          <ion-item fill="outline" class="ion-margin-bottom">
+            <ion-label position="floating">Date of birth *</ion-label>
+            <ion-input type="date" [(ngModel)]="newPatient.dob"></ion-input>
+          </ion-item>
+
+          <ion-item fill="outline" class="ion-margin-bottom">
+            <ion-label position="floating">Email Address </ion-label>
+            <ion-input type="email" [(ngModel)]="newPatient.email"></ion-input>
+          </ion-item>
+
+          <ion-item fill="outline" class="ion-margin-bottom">
+            <ion-label position="floating">Phone Number</ion-label>
+            <ion-input type="tel" [(ngModel)]="newPatient.phone"></ion-input>
+          </ion-item>
+
+          <ion-item fill="outline" class="ion-margin-bottom">
+            <ion-label position="floating">Home Address</ion-label>
+            <ion-input type="text" [(ngModel)]="newPatient.address"></ion-input>
+          </ion-item>
+
+          <ion-item fill="outline" class="ion-margin-bottom">
+            <ion-label position="floating">PPS Number</ion-label>
+            <ion-input type="text" [(ngModel)]="newPatient.pps"></ion-input>
+          </ion-item>
+
+          <ion-item fill="outline" class="ion-margin-bottom">
+            <ion-label position="floating">Medical Allergies</ion-label>
+            <ion-input type="text" [(ngModel)]="newPatient.allergies"></ion-input>
+          </ion-item>
+
+          <ion-button expand="block" size="large" (click)="createNewPatient()" style="margin-top: 20px;">
+            Save Patient
+          </ion-button>
+
+        </div>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+<!-- EDIT & PAYMENT MODAL -->
+  <ion-modal [isOpen]="isEditModalOpen">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar color="primary">
+          <ion-title>Manage Appointment</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="isEditModalOpen = false">Close</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+
+      <ion-content class="ion-padding">
+        <div *ngIf="selectedAppointment" style="max-width: 400px; margin: 0 auto; padding-top: 20px;">
+
+          <h2 style="text-align: center; margin-bottom: 20px;">
+            Patient: {{ selectedAppointment.patientName }}
+          </h2>
+
+          <ion-item>
+            <ion-label color="medium">Procedure:</ion-label>
+            <ion-text>{{ selectedAppointment.procedure }}</ion-text>
+          </ion-item>
+
+          <ion-item>
+            <ion-label color="medium">Calculated Price:</ion-label>
+            <ion-text style="font-weight: bold; font-size: 1.2em;">€{{ selectedAppointment.price }}</ion-text>
+          </ion-item>
+
+          <!-- Deposit paid message if the patient paid deposit -->
+          <div *ngIf="selectedAppointment.depositPaid"
+            style="background: #e6f0ff; padding: 10px; border-radius: 8px; margin-top: 15px; margin-bottom: 5px; text-align: center;">
+            <p style="color: #3880ff; margin: 0; font-weight: bold;">
+              <ion-icon name="information-circle"></ion-icon>
+              Deposit of €30 already received.
+            </p>
+          </div>
+
+          <!-- Dropdown to change the status -->
+          <ion-item style="margin-top: 15px;">
+            <ion-label position="stacked">Status</ion-label>
+            <ion-select [(ngModel)]="selectedAppointment.status" interface="popover"
+              [disabled]="selectedAppointment.isPaid">
+              <ion-select-option value="pending">Pending</ion-select-option>
+              <ion-select-option value="confirmed">Confirmed</ion-select-option>
+              <ion-select-option value="completed">Completed</ion-select-option>
+              <ion-select-option value="cancelled">Cancelled</ion-select-option>
+            </ion-select>
+          </ion-item>
+
+          <ion-button expand="block" color="success" style="margin-top: 20px;" (click)="saveAppointmentEdits()"
+            [disabled]="selectedAppointment.isPaid">
+            Save Status
+          </ion-button>
+
+          <!-- if this patinet fully Paid -->
+          <div *ngIf="selectedAppointment.isPaid"
+            style="margin-top: 30px; border-top: 1px solid #ccc; padding-top: 20px; text-align:center;">
+            <ion-text color="success" style="font-weight: 700; font-size: 1.05rem;">
+              <ion-icon name="checkmark-circle" slot="start"></ion-icon>
+              Treatment paid
+            </ion-text>
+          </div>
+
+          <!-- Only appears when Status is 'completed' and not fully paid -->
+          <div *ngIf="selectedAppointment.status === 'completed' && !selectedAppointment.isPaid"
+            style="margin-top: 30px; border-top: 1px solid #ccc; padding-top: 20px;">
+
+            <p style="text-align: center; color: #666; font-size: 0.9em; margin-bottom: 15px;">
+              Treatment finished. Ready for billing.
+            </p>
+
+            <!-- Let the staff type the EXACT remaining balance -->
+            <ion-item fill="outline" style="margin-bottom: 20px;">
+              <ion-label position="floating">Amount to Charge Now (€)</ion-label>
+              <ion-input type="number" [(ngModel)]="selectedAppointment.price"></ion-input>
+            </ion-item>
+
+            <!-- The Final Payment Button -->
+            <ion-button expand="block" color="tertiary" size="large" (click)="goToPayment()">
+              <ion-icon name="card-outline" slot="start"></ion-icon>
+              Take Payment (€{{ selectedAppointment.price }})
+            </ion-button>
+
+          </div>
+        </div>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
 
 </ion-content>

@@ -45,16 +45,19 @@ export class RegisterPage  {
 
 
     try {
+      // create the user in firebase auth with email and password.
       const userCredential = await createUserWithEmailAndPassword(
         this.auth, 
         this.patientData.email, 
         this.patientData.password);
-
+        // get the user id from the created user
         const userID = userCredential.user.uid;
-
+        // create a doc in the firestore Users collection.
         const userDocRef = doc(this.firestore, `Users/${userID}`);
-
+        // set the doc with the patient info.
         await setDoc(userDocRef, {
+          uid: userID,
+          patientId: userID,
           name: this.patientData.name,
           dob: this.patientData.dob,
           phone: this.patientData.phone,
